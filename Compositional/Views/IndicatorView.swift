@@ -1,0 +1,25 @@
+//
+//  IndicatorView.swift
+//  Compositional
+//
+//  Created by Chhailong Sann on 15/5/26.
+//
+
+
+import UIKit
+
+class IndicatorView: UIView {
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    clipsToBounds = true
+  }
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  func setIndicatorColor(_ color: UIColor) {
+    backgroundColor = color
+  }
+}
+

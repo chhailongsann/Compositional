@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E4200D242FB6D5EF00A38677 /* BXAnchor in Frameworks */ = {isa = PBXBuildFile; productRef = E4200D232FB6D5EF00A38677 /* BXAnchor */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		E4200D0A2FB6D06000A38677 /* Compositional.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Compositional.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4200D242FB6D5EF00A38677 /* BXAnchor in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = Compositional;
 			packageProductDependencies = (
+				E4200D232FB6D5EF00A38677 /* BXAnchor */,
 			);
 			productName = Compositional;
 			productReference = E4200D0A2FB6D06000A38677 /* Compositional.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = E4200D012FB6D06000A38677;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E4200D222FB6D5EF00A38677 /* XCRemoteSwiftPackageReference "BXAnchor" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E4200D0B2FB6D06000A38677 /* Products */;
 			projectDirPath = "";
@@ -145,20 +154,22 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5JK93TK6C6;
+				DEVELOPMENT_TEAM = 539PH5Z63Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Compositional/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.demo.Compositional;
+				PRODUCT_BUNDLE_IDENTIFIER = com.demo.CompositionalLayout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -177,20 +188,22 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5JK93TK6C6;
+				DEVELOPMENT_TEAM = 539PH5Z63Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Compositional/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIMainStoryboardFile = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.demo.Compositional;
+				PRODUCT_BUNDLE_IDENTIFIER = com.demo.CompositionalLayout;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -345,6 +358,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E4200D222FB6D5EF00A38677 /* XCRemoteSwiftPackageReference "BXAnchor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chhailongsann/BXAnchor";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.12;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E4200D232FB6D5EF00A38677 /* BXAnchor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4200D222FB6D5EF00A38677 /* XCRemoteSwiftPackageReference "BXAnchor" */;
+			productName = BXAnchor;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E4200D022FB6D06000A38677 /* Project object */;
 }
