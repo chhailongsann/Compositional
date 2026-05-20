@@ -17,6 +17,20 @@ class ViewController: UIViewController {
     .unsplash04,
     .unsplash05,
     .unsplash06,
+    .unsplash07,
+    .unsplash01,
+    .unsplash02,
+    .unsplash03,
+    .unsplash04,
+    .unsplash05,
+    .unsplash06,
+    .unsplash07,
+    .unsplash01,
+    .unsplash02,
+    .unsplash03,
+    .unsplash04,
+    .unsplash05,
+    .unsplash06,
     .unsplash07
   ]
 

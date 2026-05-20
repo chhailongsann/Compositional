@@ -79,7 +79,7 @@ open class BXPageControl: UIView {
 
   /// The diameter of each dot (in points).
   /// Affects the visual size of indicators and participates in width/height calculations.
-  private var size: CGFloat = 6
+  private var size: CGFloat = 8
 
   /// The horizontal and vertical padding applied inside the container.
   /// Used to compute `containerHeight` and to inset the `stackView` within the visual effect container.
@@ -95,15 +95,12 @@ open class BXPageControl: UIView {
 
   /// The scale applied to non-selected indicators.
   /// A value of `1` means no scaling; values below `1` visually shrink unselected dots.
-  private var scaleFactor: CGFloat = 1
+  private var scaleFactor: CGFloat = 0.7
 
 
   /// In the case of a long list, we don't want out indicators to overflow the screen
-  ///
-  private let maxNumberOfVisiblePages: Int = 4
-
-  private var leftOffset: Int = 0
-  private var rightOffset: Int = 0
+  /// For better result try using only odd number
+  private let maxNumberOfVisiblePages: Int = 11
 
   /// The total height of the indicator container.
   ///
@@ -118,6 +115,7 @@ open class BXPageControl: UIView {
   public func setNumberOfPages(_ numberOfPages: Int) {
     assert(numberOfPages > 0, "Number of pages must be greater than zero")
 
+    self.alpha = numberOfPages > 1 ? 1 : 0
     self.numberOfPages = numberOfPages
     stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
     indicatorCollections = [:]
@@ -145,7 +143,6 @@ open class BXPageControl: UIView {
 
     let totalWidth = CGFloat(numberOfPages) * size + CGFloat(numberOfPages - 1) * spacing
     stackViewWidthConstraint?.constant = totalWidth
-    rightOffset = max(0, numberOfPages - maxNumberOfVisiblePages)
   }
   public func setCurrentPage(_ nextPage: Int, withAnimation: Bool = true) {
     if nextPage < 0 || nextPage >= numberOfPages {
@@ -155,23 +152,29 @@ open class BXPageControl: UIView {
     let currentView: IndicatorView = indicatorCollections[currentPage]!
     let nextView: IndicatorView = indicatorCollections[nextPage]!
 
-    rightOffset = abs(currentPage - maxNumberOfVisiblePages)
-
     UIView.animate(withDuration: 0.15) { [self] in
       currentView.transform = CGAffineTransform(scaleX: self.scaleFactor, y: self.scaleFactor)
       currentView.backgroundColor = self.pageIndicatorTintColor
       nextView.transform = .identity
       nextView.backgroundColor = self.currentPageIndicatorTintColor
-      if currentPage >= maxNumberOfVisiblePages {
-        let leftOffset = currentPage - (maxNumberOfVisiblePages - 1)
-        if leftOffset > 0 {
-          let offsetY = abs(CGFloat(leftOffset) * (spacing + size))
-          stackView.transform = CGAffineTransform.init(translationX: -offsetY, y: 0)
-        } else {
-          stackView.transform = .identity
+      if numberOfPages > maxNumberOfVisiblePages {
+        let offset = Int(maxNumberOfVisiblePages / 2)
+        if numberOfPages - nextPage > offset {
+          if nextPage > offset {
+            if nextPage == numberOfPages - 1 {
+              return
+            }
+            let leftOffset = nextPage - (maxNumberOfVisiblePages - offset - 1)
+            if leftOffset > 0 {
+              let offsetY = abs(CGFloat(leftOffset) * (spacing + size))
+              stackView.transform = CGAffineTransform.init(translationX: -offsetY, y: 0)
+            } else {
+              stackView.transform = .identity
+            }
+          } else {
+            stackView.transform = .identity
+          }
         }
-      } else {
-        stackView.transform = .identity
       }
     }
 

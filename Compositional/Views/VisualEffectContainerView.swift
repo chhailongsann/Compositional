@@ -20,7 +20,7 @@ class VisualEffectContainerView: UIView {
     backgroundColor = .black.withAlphaComponent(0.1)
     let visualEffectView = UIVisualEffectView(effect: effect)
     visualEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//    clipsToBounds = true
+    clipsToBounds = true
     layer.cornerRadius = frame.height / 2
 
     visualEffectView.layout(in: self) {
