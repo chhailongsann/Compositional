@@ -13,14 +13,14 @@ class VisualEffectContainerView: UIView {
     super.init(frame: frame)
     let effect: UIVisualEffect
     if #available(iOS 26.0, *) {
-      effect = UIGlassEffect(style: .regular)
+      effect = UIBlurEffect(style: .regular)
     } else {
       effect = UIBlurEffect(style: .regular)
     }
-
+    backgroundColor = .black.withAlphaComponent(0.1)
     let visualEffectView = UIVisualEffectView(effect: effect)
     visualEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-    clipsToBounds = true
+//    clipsToBounds = true
     layer.cornerRadius = frame.height / 2
 
     visualEffectView.layout(in: self) {

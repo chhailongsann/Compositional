@@ -19,45 +19,30 @@ open class BXPageControl: UIView {
   enum Style {
     case dot
     case snake
-    case caterpillar
   }
 
+
+  // MARK: Properties
   private var leadingConstraint: NSLayoutConstraint?
   private var trailingConstraint: NSLayoutConstraint?
   private var centerConstraint: NSLayoutConstraint?
+  private var widthConstraint: NSLayoutConstraint?
+  private var stackViewWidthConstraint: NSLayoutConstraint?
   private var indicatorWidthConstraints: [Int: NSLayoutConstraint] = [:]
+  private var stackViewYOffset: CGFloat = 0
+
 
   private lazy var containerVisualEffectView = VisualEffectContainerView().config {
-    $0.backgroundColor = .clear
     $0.layer.cornerRadius = padding + (size / 2)
   }
 
-
-  private lazy var currentIndicatorView = IndicatorView().config {
-    $0.layer.cornerRadius = size / 2
-    $0.backgroundColor = currentPageIndicatorTintColor
-  }
-  private var currentIndicatorLeadingConstraint: NSLayoutConstraint?
-
-  private lazy var stackView: UIStackView = {
-    let stackView = UIStackView()
-    stackView.spacing = spacing
-    stackView.axis = .horizontal
-    stackView.layoutMargins = .zero
-    return stackView
-  }()
-
-  var currentPageIndicatorTintColor: UIColor = .black {
-    didSet {
-      let dots = stackView.arrangedSubviews
-      dots.forEach {
-        $0.backgroundColor = $0.tag == self.currentPage ? currentPageIndicatorTintColor : pageIndicatorTintColor
-      }
-      currentIndicatorView.backgroundColor = currentPageIndicatorTintColor
-    }
+  private lazy var stackView = UIStackView().config {
+    $0.spacing = spacing
+    $0.axis = .horizontal
+    $0.layoutMargins = .zero
   }
 
-  var pageIndicatorTintColor: UIColor = .gray.withAlphaComponent(0.4) {
+  var currentPageIndicatorTintColor: UIColor = .label {
     didSet {
       let dots = stackView.arrangedSubviews
       dots.forEach {
@@ -66,14 +51,22 @@ open class BXPageControl: UIView {
     }
   }
 
-  var spacing: CGFloat = 6 {
+  private var pageIndicatorTintColor: UIColor = .secondaryLabel.withAlphaComponent(0.3) {
+    didSet {
+      let dots = stackView.arrangedSubviews
+      dots.forEach {
+        $0.backgroundColor = $0.tag == self.currentPage ? currentPageIndicatorTintColor : pageIndicatorTintColor
+      }
+    }
+  }
+
+  private var spacing: CGFloat = 6 {
     didSet {
       stackView.spacing = spacing
       setCurrentPage(self.currentPage)
     }
   }
-  fileprivate var size: CGFloat = 6
-  fileprivate var currentPageWidth: CGFloat {
+  private var currentPageWidth: CGFloat {
     get {
       switch style {
           case .dot: return size
@@ -81,19 +74,53 @@ open class BXPageControl: UIView {
       }
     }
   }
-  fileprivate var padding: CGFloat = 8
-  fileprivate var currentPage: Int = 0
+  /// Store views in collection so we don't have to iterate through stackview subview.
+  private var indicatorCollections: [Int: IndicatorView] = [:]
 
+  /// The diameter of each dot (in points).
+  /// Affects the visual size of indicators and participates in width/height calculations.
+  private var size: CGFloat = 6
 
+  /// The horizontal and vertical padding applied inside the container.
+  /// Used to compute `containerHeight` and to inset the `stackView` within the visual effect container.
+  private var padding: CGFloat = 6
 
+  /// The currently selected page index.
+  /// Used to determine which indicator is highlighted and how widths/transforms are applied.
+  private var currentPage: Int = 0
+
+  /// The total number of pages/indicators displayed.
+  /// Must be greater than zero; used to build and update the arranged subviews.
   private var numberOfPages: Int = 1
 
+  /// The scale applied to non-selected indicators.
+  /// A value of `1` means no scaling; values below `1` visually shrink unselected dots.
+  private var scaleFactor: CGFloat = 1
+
+
+  /// In the case of a long list, we don't want out indicators to overflow the screen
+  ///
+  private let maxNumberOfVisiblePages: Int = 4
+
+  private var leftOffset: Int = 0
+  private var rightOffset: Int = 0
+
+  /// The total height of the indicator container.
+  ///
+  /// Computed as the dot `size` plus vertical padding on both sides (`padding * 2`).
+  /// Useful when laying out this view externally or matching surrounding constraints.
+  var containerHeight: CGFloat {
+    get {
+      return size + padding * 2
+    }
+  }
 
   public func setNumberOfPages(_ numberOfPages: Int) {
     assert(numberOfPages > 0, "Number of pages must be greater than zero")
 
     self.numberOfPages = numberOfPages
     stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+    indicatorCollections = [:]
     (0..<numberOfPages).forEach { i in
       let circle = IndicatorView()
       circle.backgroundColor = i == currentPage ? currentPageIndicatorTintColor : pageIndicatorTintColor
@@ -101,50 +128,54 @@ open class BXPageControl: UIView {
 
       circle.layer.cornerRadius = size / 2
       circle.height(size)
-      circle.width(size)
       let widthConstraint = circle.widthAnchor.constraint(equalToConstant: i == currentPage ? currentPageWidth : size)
       widthConstraint.isActive = true
       indicatorWidthConstraints[i] = widthConstraint
 
       stackView.addArrangedSubview(circle)
-      let scale: CGFloat = i == currentPage ? 1 : 0.8
+      let scale: CGFloat = i == currentPage ? 1 : scaleFactor
       circle.transform = CGAffineTransform(scaleX: scale, y: scale)
+      self.indicatorCollections[i] = circle
     }
 
-    // add current indicator
-    if style == .caterpillar {
-      currentIndicatorView.layout(in: self) {
-        $0.height(size)
-          .width(currentPageWidth)
-          .centerY()
-      }
-      currentIndicatorLeadingConstraint = currentIndicatorView.leadingAnchor.constraint(equalTo: containerVisualEffectView.leadingAnchor, constant: padding)
-      currentIndicatorLeadingConstraint?.isActive = true
-    }
+    let min = min(maxNumberOfVisiblePages, numberOfPages)
+    let maxWidth = CGFloat(min) * size + CGFloat(min - 1) * spacing + (2 * padding)
+
+    widthConstraint?.constant = maxWidth
+
+    let totalWidth = CGFloat(numberOfPages) * size + CGFloat(numberOfPages - 1) * spacing
+    stackViewWidthConstraint?.constant = totalWidth
+    rightOffset = max(0, numberOfPages - maxNumberOfVisiblePages)
   }
-
-  public func setCurrentPage(_ currentPage: Int, withAnimation: Bool = true) {
-    if currentPage < 0 || currentPage >= numberOfPages {
+  public func setCurrentPage(_ nextPage: Int, withAnimation: Bool = true) {
+    if nextPage < 0 || nextPage >= numberOfPages {
       return
     }
-    self.currentPage = currentPage
 
-    stackView.arrangedSubviews.forEach { circle in
-      let i = circle.tag
-      if let widthConstraint = indicatorWidthConstraints[i] {
-        widthConstraint.constant = i == currentPage ? currentPageWidth : size
-      }
-      let scale: CGFloat = i == currentPage ? 1 : 0.8
-      UIView.animate(withDuration: 0.15) {
-        circle.transform = CGAffineTransform(scaleX: scale, y: scale)
-        circle.backgroundColor = i == currentPage ? self.currentPageIndicatorTintColor : self.pageIndicatorTintColor
-        self.layoutIfNeeded()
+    let currentView: IndicatorView = indicatorCollections[currentPage]!
+    let nextView: IndicatorView = indicatorCollections[nextPage]!
+
+    rightOffset = abs(currentPage - maxNumberOfVisiblePages)
+
+    UIView.animate(withDuration: 0.15) { [self] in
+      currentView.transform = CGAffineTransform(scaleX: self.scaleFactor, y: self.scaleFactor)
+      currentView.backgroundColor = self.pageIndicatorTintColor
+      nextView.transform = .identity
+      nextView.backgroundColor = self.currentPageIndicatorTintColor
+      if currentPage >= maxNumberOfVisiblePages {
+        let leftOffset = currentPage - (maxNumberOfVisiblePages - 1)
+        if leftOffset > 0 {
+          let offsetY = abs(CGFloat(leftOffset) * (spacing + size))
+          stackView.transform = CGAffineTransform.init(translationX: -offsetY, y: 0)
+        } else {
+          stackView.transform = .identity
+        }
+      } else {
+        stackView.transform = .identity
       }
     }
-    self.currentIndicatorLeadingConstraint?.constant = self.padding + CGFloat(currentPage) * (self.size + self.spacing)
-    UIView.animate(withDuration: 0.25) {
-      self.layoutIfNeeded()
-    }
+
+    self.currentPage = nextPage
   }
 
   public func next() {
@@ -179,18 +210,7 @@ open class BXPageControl: UIView {
       }
     }
   }
-  var style: BXPageControl.Style = .dot {
-    didSet {
-      switch style {
-        case .dot:
-          currentIndicatorView.isHidden = true
-        case .snake:
-          currentIndicatorView.isHidden = true
-        case .caterpillar:
-          currentIndicatorView.isHidden = false
-      }
-    }
-  }
+  var style: BXPageControl.Style = .dot
   init(alignment: Alignment = .center, style: BXPageControl.Style) {
     self.alignment = alignment
     self.style = style
@@ -246,19 +266,17 @@ open class BXPageControl: UIView {
       trailingConstraint?.isActive = false
       centerConstraint?.isActive = true
     }
-    switch style {
-      case .dot:
-        currentIndicatorView.isHidden = true
-      case .snake:
-        currentIndicatorView.isHidden = true
-      case .caterpillar:
-        currentIndicatorView.isHidden = false
-    }
 
-
-    stackView.layout(in: containerVisualEffectView) {
-      $0.fill(padding: .init(top: padding, left: padding, bottom: padding, right: padding))
+    stackView.layout(in: self.containerVisualEffectView) {
+      $0.leading(padding)
+        .bottom(padding)
+        .top(padding)
     }
+    stackViewWidthConstraint = stackView.widthAnchor.constraint(equalToConstant: 0)
+    stackViewWidthConstraint?.isActive = true
+
+    widthConstraint = containerVisualEffectView.widthAnchor.constraint(equalToConstant: 0)
+    widthConstraint?.isActive = true
   }
 }
 
@@ -268,8 +286,5 @@ extension BXPageControl {
   }
   static var snake: BXPageControl {
     return .init(alignment: .leading, style: .snake)
-  }
-  static var caterpillar: BXPageControl {
-    return .init(alignment: .leading, style: .caterpillar)
   }
 }

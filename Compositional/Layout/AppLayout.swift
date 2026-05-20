@@ -49,6 +49,8 @@ final class AppLayout {
         return
       }
       selectedIndex = indexPath.item
+      section.orthogonalScrollingBehavior = selectedIndex == 0 ? .continuousGroupLeadingBoundary : .groupPagingCentered
+
       if let footer = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionFooter, at: .init(item: 0, section: 0)) as? PageControlFooterView {
         footer.setPage(indexPath.item)
         Haptic.selection.generate()

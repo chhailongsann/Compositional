@@ -79,7 +79,7 @@ extension ViewController {
         return AppLayout.shared.cardBannerSection(for: self.collectionView)
       }
     }
-    layout.register(SectionDecorationView.self, forDecorationViewOfKind: "SectionBackground")
+//    layout.register(SectionDecorationView.self, forDecorationViewOfKind: "SectionBackground")
     collectionView.setCollectionViewLayout(layout, animated: true)
   }
 }
