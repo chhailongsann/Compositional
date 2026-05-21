@@ -79,7 +79,7 @@ open class BXPageControl: UIView {
 
   /// The diameter of each dot (in points).
   /// Affects the visual size of indicators and participates in width/height calculations.
-  private var size: CGFloat = 8
+  private var size: CGFloat = 6
 
   /// The horizontal and vertical padding applied inside the container.
   /// Used to compute `containerHeight` and to inset the `stackView` within the visual effect container.
@@ -95,7 +95,7 @@ open class BXPageControl: UIView {
 
   /// The scale applied to non-selected indicators.
   /// A value of `1` means no scaling; values below `1` visually shrink unselected dots.
-  private var scaleFactor: CGFloat = 0.7
+  private var minimumScaleFactor: CGFloat = 0.9
 
 
   /// In the case of a long list, we don't want out indicators to overflow the screen
@@ -131,7 +131,7 @@ open class BXPageControl: UIView {
       indicatorWidthConstraints[i] = widthConstraint
 
       stackView.addArrangedSubview(circle)
-      let scale: CGFloat = i == currentPage ? 1 : scaleFactor
+      let scale: CGFloat = i == currentPage ? 1 : minimumScaleFactor
       circle.transform = CGAffineTransform(scaleX: scale, y: scale)
       self.indicatorCollections[i] = circle
     }
@@ -153,7 +153,7 @@ open class BXPageControl: UIView {
     let nextView: IndicatorView = indicatorCollections[nextPage]!
 
     UIView.animate(withDuration: 0.15) { [self] in
-      currentView.transform = CGAffineTransform(scaleX: self.scaleFactor, y: self.scaleFactor)
+      currentView.transform = CGAffineTransform(scaleX: self.minimumScaleFactor, y: self.minimumScaleFactor)
       currentView.backgroundColor = self.pageIndicatorTintColor
       nextView.transform = .identity
       nextView.backgroundColor = self.currentPageIndicatorTintColor

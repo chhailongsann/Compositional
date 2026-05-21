@@ -20,7 +20,7 @@ final class AppLayout {
     let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
     let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.8), heightDimension: .fractionalWidth(0.8 * CARD_ASPECT_RATIO))
-    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+    let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
     group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
     let section = NSCollectionLayoutSection(group: group)
@@ -37,12 +37,12 @@ final class AppLayout {
       let centerX = offset.x + (containerWidth / 2)
 
       let closestItem = items.min {
-          abs($0.frame.midX - centerX) <
+        abs($0.frame.midX - centerX) <
           abs($1.frame.midX - centerX)
       }
 
       guard let indexPath = closestItem?.indexPath else {
-          return
+        return
       }
 
       guard selectedIndex != indexPath.item else {
@@ -60,6 +60,33 @@ final class AppLayout {
     section.boundarySupplementaryItems = [
       .init(layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .absolute(30)), elementKind: UICollectionView.elementKindSectionFooter, alignment: .bottom)
     ]
+
+    return section
+  }
+
+  func phoneTopAmountSection(for collectionView: UICollectionView)-> NSCollectionLayoutSection {
+    let width = collectionView.frame.width
+//    let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(width), heightDimension: .absolute(width))
+//    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//
+//    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(width))
+//    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+//    group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+//
+//    let section = NSCollectionLayoutSection(group: group)
+//    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+//    section.interGroupSpacing = 16
+    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+    let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(width), heightDimension: .estimated(40))
+    let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+    group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+
+    let section = NSCollectionLayoutSection(group: group)
+    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+    section.orthogonalScrollingBehavior = .groupPagingCentered
+    section.interGroupSpacing = 16
 
     return section
   }
