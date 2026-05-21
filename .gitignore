@@ -36,3 +36,4 @@ Carthage/Build
 # Pods/
 Compositional.xcodeproj/project.xcworkspace/xcuserdata/chhailong.xcuserdatad/UserInterfaceState.xcuserstate
 *.xcuserstate
+/Compositional.xcodeproj/project.xcworkspace/xcuserdata

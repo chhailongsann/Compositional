@@ -14,6 +14,8 @@ final class ExampleViewController: UIViewController {
     case carousel
     case grid
   }
+  
+  private var numberOfColumns: Int = 2
 
   private lazy var collectionView: UICollectionView = {
     let layout = createLayout()
@@ -42,7 +44,25 @@ final class ExampleViewController: UIViewController {
     view.backgroundColor = .systemBackground
 
     collectionView.layout(in: self.view) {
-      $0.fill()
+      $0.fill(ignoreSafeArea: true)
+    }
+    navigationItem.rightBarButtonItems = [
+      .init(image: UIImage(systemName: "square.grid.2x2.fill"), style: .plain, target: self, action: #selector(make2ColumnGrid)),
+      .init(image: UIImage(systemName: "square.grid.3x2.fill"), style: .plain, target: self, action: #selector(make3ColumnGrid))
+    ]
+  }
+  @objc func make3ColumnGrid() {
+    if numberOfColumns != 3 {
+      numberOfColumns = 3
+      let layout = createLayout()
+      collectionView.setCollectionViewLayout(layout, animated: true)
+    }
+  }
+  @objc func make2ColumnGrid() {
+    if numberOfColumns != 2 {
+      numberOfColumns = 2
+      let layout = createLayout()
+      collectionView.setCollectionViewLayout(layout, animated: true)
     }
   }
 }
@@ -65,7 +85,7 @@ private extension ExampleViewController {
         return self.makeCarouselSection()
 
       case .grid:
-        return self.makeHorizontalGridSection()
+        return self.makeColumnLayout(self.numberOfColumns)
       }
     }
   }
@@ -129,9 +149,9 @@ private extension ExampleViewController {
 
     item.contentInsets = NSDirectionalEdgeInsets(
       top: 4,
-      leading: 4,
+      leading: 8,
       bottom: 4,
-      trailing: 4
+      trailing: 8
     )
 
     // Vertical group (4 rows)
@@ -143,7 +163,7 @@ private extension ExampleViewController {
     let verticalGroup = NSCollectionLayoutGroup.vertical(
       layoutSize: verticalGroupSize,
       subitem: item,
-      count: 2
+      count: 3
     )
 
     // Container group
@@ -152,7 +172,7 @@ private extension ExampleViewController {
       heightDimension: .estimated(160)
     )
 
-    let containerGroup = NSCollectionLayoutGroup.horizontal(
+    let containerGroup = NSCollectionLayoutGroup.vertical(
       layoutSize: containerGroupSize,
       subitems: [verticalGroup]
     )
@@ -161,14 +181,55 @@ private extension ExampleViewController {
     let section = NSCollectionLayoutSection(group: containerGroup)
 
     section.orthogonalScrollingBehavior = .groupPagingCentered
-
+    section.interGroupSpacing = 0
     section.contentInsets = NSDirectionalEdgeInsets(
       top: 0,
-      leading: 12,
-      bottom: 20,
-      trailing: 12
+      leading: 0,
+      bottom: 0,
+      trailing: 0
     )
 
+    return section
+  }
+  
+  func makeColumnLayout(_ numberOfColumns: Int) -> NSCollectionLayoutSection {
+    
+    // Item takes full width of its group column
+    let itemSize = NSCollectionLayoutSize(
+      widthDimension: .fractionalWidth(1.0),
+      heightDimension: .fractionalHeight(1.0)
+    )
+    
+    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+    
+    // Column group (1/3 width each)
+    let groupSize = NSCollectionLayoutSize(
+      widthDimension: .fractionalWidth(1.0),
+      heightDimension: .absolute(50)
+    )
+    let padding: CGFloat = 16
+    // 3 items per row = 3 columns
+    let group = NSCollectionLayoutGroup.horizontal(
+      layoutSize: groupSize,
+      subitem: item,
+      count: numberOfColumns
+    )
+    
+//    group.interItemSpacing = .fixed(padding)
+    group.interItemSpacing = .flexible(padding)
+    
+    // Section
+    let section = NSCollectionLayoutSection(group: group)
+    
+    section.interGroupSpacing = padding
+    
+    section.contentInsets = NSDirectionalEdgeInsets(
+      top: 0,
+      leading: padding,
+      bottom: 0,
+      trailing: padding
+    )
+    
     return section
   }
 }
