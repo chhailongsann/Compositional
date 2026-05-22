@@ -9,6 +9,7 @@ import UIKit
 import AudioToolbox
 
 let CARD_ASPECT_RATIO: CGFloat = 10/16
+let PADDING: CGFloat = 16
 
 final class AppLayout {
   static let shared = AppLayout()
@@ -24,7 +25,7 @@ final class AppLayout {
     group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
     let section = NSCollectionLayoutSection(group: group)
-    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+    section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16)
     section.orthogonalScrollingBehavior = .groupPagingCentered
     section.interGroupSpacing = 16
 
@@ -49,7 +50,7 @@ final class AppLayout {
         return
       }
       selectedIndex = indexPath.item
-      section.orthogonalScrollingBehavior = selectedIndex == 0 ? .continuousGroupLeadingBoundary : .groupPagingCentered
+      section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
 
       if let footer = collectionView.supplementaryView(forElementKind: UICollectionView.elementKindSectionFooter, at: .init(item: 0, section: 0)) as? PageControlFooterView {
         footer.setPage(indexPath.item)
@@ -64,32 +65,86 @@ final class AppLayout {
     return section
   }
 
-  func phoneTopAmountSection(for collectionView: UICollectionView)-> NSCollectionLayoutSection {
-    let width = collectionView.frame.width
-//    let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(width), heightDimension: .absolute(width))
-//    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//
-//    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(width))
-//    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-//    group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-//
-//    let section = NSCollectionLayoutSection(group: group)
-//    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-//    section.interGroupSpacing = 16
-    let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+  func verticalGrid(_ numberOfColumns: Int) -> NSCollectionLayoutSection {
+
+    // Item takes full width of its group column
+    let itemSize = NSCollectionLayoutSize(
+      widthDimension: .fractionalWidth(1.0),
+      heightDimension: .fractionalHeight(1.0)
+    )
+
     let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-    let groupSize = NSCollectionLayoutSize(widthDimension: .estimated(width), heightDimension: .estimated(40))
-    let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-    group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+    let groupSize = NSCollectionLayoutSize(
+      widthDimension: .fractionalWidth(1.0),
+      heightDimension: .absolute(50)
+    )
 
+    let group = NSCollectionLayoutGroup.horizontal(
+      layoutSize: groupSize,
+      subitem: item,
+      count: numberOfColumns
+    )
+
+//    group.interItemSpacing = .fixed(padding)
+    group.interItemSpacing = .flexible(PADDING)
+
+    // Section
     let section = NSCollectionLayoutSection(group: group)
-    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
-    section.orthogonalScrollingBehavior = .groupPagingCentered
-    section.interGroupSpacing = 16
+
+    section.interGroupSpacing = PADDING
+
+    section.contentInsets = NSDirectionalEdgeInsets(
+      top: 0,
+      leading: PADDING,
+      bottom: 0,
+      trailing: PADDING
+    )
 
     return section
   }
+
+  func horizontalGrid(_ numberOfRows: Int) -> NSCollectionLayoutSection {
+
+    let itemHeight: CGFloat = 40
+    let spacing: CGFloat = 16
+    // Item
+    let itemSize = NSCollectionLayoutSize(
+        widthDimension: .fractionalWidth(1.0),
+        heightDimension: .absolute(itemHeight)
+    )
+
+    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+    let columnGroupSize = NSCollectionLayoutSize(
+        widthDimension: .fractionalWidth(1/3),
+        heightDimension: .absolute(CGFloat(numberOfRows) * itemHeight + CGFloat(numberOfRows - 1) * spacing)
+    )
+
+    let columnGroup = NSCollectionLayoutGroup.vertical(
+        layoutSize: columnGroupSize,
+        subitem: item,
+        count: numberOfRows
+    )
+
+    columnGroup.interItemSpacing = .fixed(PADDING)
+
+    // Section
+    let section = NSCollectionLayoutSection(group: columnGroup)
+
+    section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+
+    section.interGroupSpacing = spacing
+
+    section.contentInsets = NSDirectionalEdgeInsets(
+        top: PADDING,
+        leading: PADDING,
+        bottom: PADDING,
+        trailing: PADDING
+    )
+
+    return section
+}
 }
 
 final class CardBannerCollectionLayoutSection: NSCollectionLayoutSection {

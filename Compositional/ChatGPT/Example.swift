@@ -12,6 +12,7 @@ final class ExampleViewController: UIViewController {
 
   enum Section: Int, CaseIterable {
     case carousel
+    case horizontalGrid
     case grid
   }
   
@@ -82,10 +83,13 @@ private extension ExampleViewController {
       switch section {
 
       case .carousel:
-        return self.makeCarouselSection()
+        return AppLayout.shared.cardBannerSection(for: self.collectionView)
+
+      case .horizontalGrid:
+        return self.makeHorizontalGridSection()
 
       case .grid:
-        return self.makeColumnLayout(self.numberOfColumns)
+        return self.makeColumnLayout()
       }
     }
   }
@@ -139,60 +143,48 @@ private extension ExampleViewController {
 
   func makeHorizontalGridSection() -> NSCollectionLayoutSection {
 
-    // Single item
+    let itemHeight: CGFloat = 40
+    let spacing: CGFloat = 16
+    // Item
     let itemSize = NSCollectionLayoutSize(
-      widthDimension: .fractionalWidth(1.0),
-      heightDimension: .absolute(40)
+        widthDimension: .fractionalWidth(1.0),
+        heightDimension: .absolute(itemHeight)
     )
 
     let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-    item.contentInsets = NSDirectionalEdgeInsets(
-      top: 4,
-      leading: 8,
-      bottom: 4,
-      trailing: 8
+    // Vertical group = 3 rows
+    let columnGroupSize = NSCollectionLayoutSize(
+        widthDimension: .fractionalWidth(1/3),
+        heightDimension: .absolute(CGFloat(numberOfColumns) * itemHeight + CGFloat(numberOfColumns - 1) * spacing)
     )
 
-    // Vertical group (4 rows)
-    let verticalGroupSize = NSCollectionLayoutSize(
-      widthDimension: .fractionalWidth(1.0 / 3.0),
-      heightDimension: .estimated(160)
+    let columnGroup = NSCollectionLayoutGroup.vertical(
+        layoutSize: columnGroupSize,
+        subitem: item,
+        count: numberOfColumns
     )
 
-    let verticalGroup = NSCollectionLayoutGroup.vertical(
-      layoutSize: verticalGroupSize,
-      subitem: item,
-      count: 3
-    )
-
-    // Container group
-    let containerGroupSize = NSCollectionLayoutSize(
-      widthDimension: .fractionalWidth(1.0),
-      heightDimension: .estimated(160)
-    )
-
-    let containerGroup = NSCollectionLayoutGroup.vertical(
-      layoutSize: containerGroupSize,
-      subitems: [verticalGroup]
-    )
+    columnGroup.interItemSpacing = .fixed(spacing)
 
     // Section
-    let section = NSCollectionLayoutSection(group: containerGroup)
+    let section = NSCollectionLayoutSection(group: columnGroup)
 
-    section.orthogonalScrollingBehavior = .groupPagingCentered
-    section.interGroupSpacing = 0
+    section.orthogonalScrollingBehavior = .continuous
+
+    section.interGroupSpacing = spacing
+
     section.contentInsets = NSDirectionalEdgeInsets(
-      top: 0,
-      leading: 0,
-      bottom: 0,
-      trailing: 0
+        top: 0,
+        leading: spacing,
+        bottom: 20,
+        trailing: spacing
     )
 
     return section
-  }
-  
-  func makeColumnLayout(_ numberOfColumns: Int) -> NSCollectionLayoutSection {
+}
+
+  func makeColumnLayout() -> NSCollectionLayoutSection {
     
     // Item takes full width of its group column
     let itemSize = NSCollectionLayoutSize(
@@ -202,13 +194,12 @@ private extension ExampleViewController {
     
     let item = NSCollectionLayoutItem(layoutSize: itemSize)
     
-    // Column group (1/3 width each)
     let groupSize = NSCollectionLayoutSize(
       widthDimension: .fractionalWidth(1.0),
       heightDimension: .absolute(50)
     )
     let padding: CGFloat = 16
-    // 3 items per row = 3 columns
+
     let group = NSCollectionLayoutGroup.horizontal(
       layoutSize: groupSize,
       subitem: item,
@@ -252,6 +243,9 @@ extension ExampleViewController: UICollectionViewDataSource {
     case .carousel:
       return 5
 
+    case .horizontalGrid:
+      return 10
+
     case .grid:
       return 40
     }
@@ -270,8 +264,10 @@ extension ExampleViewController: UICollectionViewDataSource {
     // Demo colors
     if indexPath.section == 0 {
       cell.backgroundColor = .systemBlue
-    } else {
+    } else if indexPath.section == 1 {
       cell.backgroundColor = .systemOrange
+    } else {
+      cell.backgroundColor = .systemIndigo
     }
 
     cell.layer.cornerRadius = 12
